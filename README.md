@@ -1,5 +1,5 @@
 # sc04-variable-influence-screening
-Systematic screening of additional variables to quantify their incremental predictive value and justify model complexity
+Systematic screening of additional variables to quantify their incremental predictive value and justify model complexity under a conservative engineering lens
  
  # Study Case 4 - Variable Influence Screening
 
@@ -32,9 +32,23 @@ Rather than immediately constructing a large, multi-variable model, this study p
 
 ## Thesis
 
-Only a small subset of non-chemical variables delivers **stable, incremental, and industrially meaningful improvements** over chemistry-only models.
+Only a small subset of non-chemical variables is a plausible candidate for delivering **stable, incremental, and industrially meaningful improvements** over chemistry-only models when evaluated under a conservative modeling lens.
 
-Feature engineering choices matter as much as variable selection itself, and improvements should be evaluated not only on average error but also on **tail risk**, as captured by high-percentile absolute error.
+Feature engineering choices matter as much as variable selection itself, and improvements should be assessed not only on average error but also on **tail risk**, as captured by high-percentile absolute error.
+
+---
+
+## Screening Philosophy
+
+This study adopts a **conservative screening philosophy**.
+
+The objective is not to uncover every possible interaction or maximize predictive accuracy, but to identify variables whose value:
+
+- is stable across validation folds,
+- does not rely on aggressive model flexibility,
+- and demonstrably reduces risk rather than only improving average performance.
+
+This philosophy guides both variable selection and model choice throughout the study.
 
 ---
 
@@ -76,10 +90,10 @@ Generalization across systems is intentionally deferred to later stages.
 
 - Heat-level chemistry composition
 - Heat-level mechanical test results (UTS)
-- Selected process variables capturing deformation and thermal history (not full process routes)
+- Selected process variables capturing deformation and thermal history **(not full process routes)**
 
 **Assumptions:**
-- One row per heat after aggregation
+- One row per heat
 - Consistent grain inherited from previous study cases
 - Candidate variables are measured with sufficient reliability for screening purposes
 
@@ -118,7 +132,7 @@ Models are evaluated in a stepwise manner:
 4. Chemistry + coiling temperature  
 5. Chemistry + percentage reduction + coiling temperature  
 
-This design isolates **incremental gain** attributable to each addition.
+This design isolates **incremental gain** attributable to each variable or representation.
 
 ### Validation
 - Group-aware cross-validation
@@ -138,35 +152,43 @@ The P95 metric is used to quantify **worst-case typical errors**, which are ofte
 
 ### Tables
 - Model performance comparison across incremental steps
-- Stability metrics across folds
-- Comparison of thickness vs percentage reduction representations
+- Stability metrics across validation folds
+- Direct comparison of thickness vs percentage reduction representations
 
 ### Figures
 - Incremental performance waterfalls (MAE, R², P95 absolute error)
 - Error distribution comparisons highlighting tail behavior
-- Residual diagnostics before and after variable inclusion
+- Minimal residual diagnostics supporting interpretation
 
 ### Engineering insights
-- Identification of variables with high predictive ROI
-- Quantification of risk reduction from added variables
-- Clear justification for excluding low-impact features
+- Identification of variables with potential predictive ROI
+- Quantification of whether added variables meaningfully reduce risk or provide only marginal gains
+- Clear justification for including or excluding candidate features
 
 ---
 
 ## Evaluation Criteria
 
-This study is considered successful if it demonstrates:
+This study is considered successful if it:
 
-- Clear and consistent incremental gains from selected variables
-- Meaningful reduction in **P95 absolute error**
-- Stable improvements across validation folds
-- A defensible ranking of variables by engineering value
+- Quantifies the incremental impact of candidate variables under a conservative modeling lens
+- Determines whether added variables deliver robust improvements or marginal gains
+- Assesses whether any observed improvements are meaningful in terms of tail risk (P95 absolute error)
+- Supports an explicit decision on variable inclusion or exclusion for downstream modeling
 
-**Not considered success criteria:**
-- Maximum achievable accuracy
-- Large feature sets
-- Marginal gains that do not alter decision-making
-- Complex models without clear justification
+A lack of clear or consistent improvement is itself considered a valid and informative outcome.
+
+
+### Not objectives of this study
+
+The following are explicitly **not objectives** of this study and are not used to judge its success:
+
+- Maximizing predictive accuracy
+- Expanding feature sets without clear justification
+- Chasing marginal metric improvements in isolation
+- Introducing additional complexity without clear evidence of risk reduction
+
+The goal is decision support, not metric optimization
 
 ---
 
@@ -175,10 +197,11 @@ This study is considered successful if it demonstrates:
 Study Case 4 is complete when:
 
 - The chemistry-only baseline has been extended incrementally and transparently
-- High-impact variables have been clearly identified
-- Low-ROI variables have been explicitly ruled out
+- The incremental value of candidate variables has been quantified
+- Variables that do not justify additional complexity have been explicitly identified
 - Feature engineering choices are justified with evidence
-- The scope for a process-aware model is clearly defined
+- The scope for a process-aware model is clearly defined, including justified exclusions
+
 
 ---
 
@@ -186,4 +209,4 @@ Study Case 4 is complete when:
 
 Study Case 4 defines **what is worth modeling**.
 
-By identifying a minimal, high-value set of non-chemical variables, it establishes a controlled and defensible scope for **Study Case 5**, where a full process-aware model can be constructed without unnecessary complexity.
+By identifying a minimal, high-value set of non-chemical variables whose contribution is robust and defensible, it establishes a constrained and justified scope for **Study Case 5**, where a full process-aware model can be constructed without unnecessary complexity.
