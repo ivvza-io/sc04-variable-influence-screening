@@ -32,7 +32,7 @@ Rather than immediately constructing a large, multi-variable model, this study p
 
 ## Thesis
 
-Only a small subset of non-chemical variables is a plausible candidate for delivering **stable, incremental, and industrially meaningful improvements** over chemistry-only models when evaluated under a conservative modeling lens.
+Only a small subset of non-chemical variables is a plausible candidate for delivering **stable, incremental, and industrially meaningful improvements** over chemistry-only models when evaluated under a conservative engineering lens.
 
 Feature engineering choices matter as much as variable selection itself, and improvements should be assessed not only on average error but also on **tail risk**, as captured by high-percentile absolute error.
 
@@ -64,7 +64,8 @@ This philosophy guides both variable selection and model choice throughout the s
 
 ### Out of scope (explicit)
 - Multi-alloy or cross-system generalization (already addressed in SC3)
-- Full process-aware modeling
+- Full process-aware modeling (addressed only after variable screening)
+- Exhaustive feature discovery across all available process variables
 - Exhaustive feature combinations
 - Hyperparameter optimization
 - Advanced ML architectures
@@ -96,6 +97,20 @@ Generalization across systems is intentionally deferred to later stages.
 - One row per heat
 - Consistent grain inherited from previous study cases
 - Candidate variables are measured with sufficient reliability for screening purposes
+
+---
+
+## Feature Pre-selection Rationale
+
+To limit the scope of this screening exercise and enable focused, interpretable analysis, candidate variables were **pre-selected based on process knowledge and metallurgical logic**.
+
+This decision serves two purposes:
+- It reduces the dimensionality of the screening space, allowing clearer attribution of incremental predictive value.
+- It prioritizes variables with a well-understood physical relationship to strength development, increasing the likelihood that observed effects are robust and actionable.
+
+> Importantly, this pre-selection does **not imply that other available variables are uninformative or irrelevant**. Rather, it reflects a deliberate choice to favor engineering-guided exploration over exhaustive feature enumeration at this stage of the project.
+
+Broader or more systematic feature exploration is intentionally deferred to later phases, once a minimal, high-impact variable set has been established.
 
 ---
 
@@ -209,4 +224,7 @@ Study Case 4 is complete when:
 
 Study Case 4 defines **what is worth modeling**.
 
-By identifying a minimal, high-value set of non-chemical variables whose contribution is robust and defensible, it establishes a constrained and justified scope for **Study Case 5**, where a full process-aware model can be constructed without unnecessary complexity.
+By identifying a minimal and defensible set of non-chemical variables that deliver robust, incremental value under conservative evaluation, it establishes the foundation for **Study Case 5**, where these variables are integrated into design-oriented tools (e.g., chemistry–process heatmaps) to support robust engineering decision-making.
+
+Study Case 5 does not expand the feature space further; instead, it focuses on translating validated variables into actionable design representations.
+
