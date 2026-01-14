@@ -161,6 +161,27 @@ This design isolates **incremental gain** attributable to each variable or repre
 
 The P95 metric is used to quantify **worst-case typical errors**, which are often more relevant for industrial risk assessment than average performance alone.
 
+### Incremental performance and tail-risk assessment
+
+To evaluate whether additional variables justify increased model complexity,
+each candidate is added incrementally to the frozen chemistry-only baseline.
+
+Performance is assessed using out-of-fold predictions under group-aware validation,
+with emphasis on **tail risk** rather than average accuracy.
+
+The figure below summarizes the incremental impact of each variable on
+model performance and robustness:
+
+![Incremental variable screening — MAE and P95 absolute error](assets/sc04_incremental_screening.png)
+
+**Interpretation:**
+- None of the evaluated variables delivers a consistent or material reduction in tail risk.
+- Small improvements in average error, where present, are stable across validation folds.
+- lternative encodings of deformation (final thickness vs percentage reduction) behave similarly, confirming that they capture the same underlying physical effect, with only minor differences in performance.
+- Combined models achieve slightly lower MAE than simpler representations, but without a corresponding reduction in tail risk.
+
+Under a conservative engineering lens, these results do not justify expanding the feature set beyond chemistry for this system.
+
 ---
 
 ## Expected Outputs
