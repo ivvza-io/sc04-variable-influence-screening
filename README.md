@@ -1,251 +1,283 @@
-# sc04-variable-influence-screening
-Systematic screening of additional variables to quantify their incremental predictive value and justify model complexity under a conservative engineering lens
- 
- # Study Case 4 - Variable Influence Screening
+# SC04 — Variable Influence Screening in Chemistry-Based UTS Models
 
-**Identifying Which Variables Are Worth Adding Before Increasing Model Complexity**
+> **Adding process variables to a conservative predictive model does not automatically improve its robustness or decision value. This study evaluates whether commonly measured, metallurgically motivated process variables provide meaningful incremental signal beyond a chemistry-only baseline.**
 
 ---
 
-## Position in the Portfolio
+## 1. Why This Study Case Exists
 
-This study case builds directly on **Study Case 2** and **Study Case 3**, which established and stress-tested a **chemistry-only modeling approach** for predicting UTS at heat level.
+In industrial environments, many process variables are measured continuously because they are **operationally important and metallurgically justified**.
 
-By the end of SC3, two conclusions were clear:
+These variables typically:
+- Have internal guidelines or target ranges
+- Are monitored to ensure process stability
+- Are controlled for reasons that go beyond prediction
 
-1. Chemistry consistently defines the feasible strength envelope.
-2. A non-trivial portion of variability remains unexplained within that envelope.
+However, a common modeling failure mode occurs when:
+- Variables are added to predictive models simply because they are available
+- Model complexity increases without verifying incremental signal
+- Apparent improvements in fit do not translate into improved robustness
 
-Study Case 4 addresses the natural next industrial question:
+This study case exists to answer a **modeling-specific question**, not a process-design one:
 
-> *Before building a full process-aware model, which additional variables are actually worth the added complexity?*
+> **Do commonly measured, metallurgically relevant process variables provide stable and meaningful incremental predictive value when combined with a chemistry-only UTS model?**
 
-Rather than immediately constructing a large, multi-variable model, this study performs a **controlled variable screening** to identify **high-impact drivers** and discard low-return candidates.
-
----
-
-## Core Question
-
-**Which additional variables meaningfully reduce prediction error and risk beyond chemistry-only models, and which do not justify their inclusion?**
-
----
-
-## Thesis
-
-Only a small subset of non-chemical variables is a plausible candidate for delivering **stable, incremental, and industrially meaningful improvements** over chemistry-only models when evaluated under a conservative engineering lens.
-
-Feature engineering choices matter as much as variable selection itself, and improvements should be assessed not only on average error but also on **tail risk**, as captured by high-percentile absolute error.
+This study does not evaluate whether these variables should be measured or controlled in production. It evaluates only whether they provide incremental predictive signal when combined with a chemistry-only model for UTS.
 
 ---
 
-## Screening Philosophy
+## 2. Problem Framing and Hypothesis
 
-This study adopts a **conservative screening philosophy**.
+### Strategic Modeling Problem
 
-The objective is not to uncover every possible interaction or maximize predictive accuracy, but to identify variables whose value:
+Measuring a variable and **using it in a model** are fundamentally different decisions.
 
-- is stable across validation folds,
-- does not rely on aggressive model flexibility,
-- and demonstrably reduces risk rather than only improving average performance.
+While many variables must be monitored and controlled in production, not all of them necessarily:
+- Add independent information to a given predictive task
+- Improve model robustness
+- Justify increased model complexity
 
-This philosophy guides both variable selection and model choice throughout the study.
+For internal standards supported by predictive models, unnecessary complexity can:
+- Reduce interpretability
+- Complicate deployment
+- Create a false sense of control
 
----
+The central modeling question addressed here is therefore:
 
-## Scope and Constraints
+> **Which commonly measured process variables provide incremental predictive signal beyond chemistry when modeling UTS?**
 
-### In scope
-- Single alloy system, selected to minimize confounding effects
-- Chemistry-only baseline identical to SC2 / SC3
-- Incremental addition of candidate variables, one step at a time
-- Explicit comparison of alternative feature representations
-- Evaluation using both average and tail-error metrics
-- Conservative, group-aware validation
+### Hypothesis
 
-### Out of scope (explicit)
-- Multi-alloy or cross-system generalization (already addressed in SC3)
-- Full process-aware modeling (addressed only after variable screening)
-- Exhaustive feature discovery across all available process variables
-- Exhaustive feature combinations
-- Hyperparameter optimization
-- Advanced ML architectures
-- Causal interpretation of coefficients or importances
+> *Only variables that consistently reduce tail error and remain stable across validation folds provide meaningful incremental value in a chemistry-based UTS model.*
 
-The objective is **screening and prioritization**, not optimization.
+Demonstrating **limited or no improvement** is considered a valid and informative outcome.
 
 ---
 
-## System Under Study
+## 3. Screening Philosophy and Design Principles
 
-This study focuses on a **single alloy system** previously analyzed in earlier study cases, ensuring:
+This study follows a deliberately **conservative and disciplined modeling philosophy**.
 
-- Stable data semantics
-- Controlled metallurgy
-- Clear attribution of performance changes to added variables
+### 3.1 Frozen Baseline Principle  
+The chemistry-only model:
+- Is defined once
+- Remains unchanged throughout the study
+- Serves as the fixed reference point
 
-Generalization across systems is intentionally deferred to later stages.
+All observed differences must be attributable solely to the added variables.
 
----
+### 3.2 Metallurgically Motivated Variable Selection  
+The evaluated variables were not selected opportunistically.
 
-## Data Inputs (from the semantic layer)
+They were chosen because:
+- They are routinely measured in the process
+- They follow internal guidelines or typical operating ranges
+- They are metallurgically linked to process outcomes
 
-- Heat-level chemistry composition
-- Heat-level mechanical test results (UTS)
-- Selected process variables capturing deformation and thermal history **(not full process routes)**
+This ensures the screening exercise reflects **real industrial modeling decisions**.
 
-**Assumptions:**
-- One row per heat
-- Consistent grain inherited from previous study cases
-- Candidate variables are measured with sufficient reliability for screening purposes
+### 3.3 Risk Reduction Over Metric Optimization  
+Average error improvements alone are insufficient.
 
----
-
-## Feature Pre-selection Rationale
-
-To limit the scope of this screening exercise and enable focused, interpretable analysis, candidate variables were **pre-selected based on process knowledge and metallurgical logic**.
-
-This decision serves two purposes:
-- It reduces the dimensionality of the screening space, allowing clearer attribution of incremental predictive value.
-- It prioritizes variables with a well-understood physical relationship to strength development, increasing the likelihood that observed effects are robust and actionable.
-
-> Importantly, this pre-selection does **not imply that other available variables are uninformative or irrelevant**. Rather, it reflects a deliberate choice to favor engineering-guided exploration over exhaustive feature enumeration at this stage of the project.
-
-Broader or more systematic feature exploration is intentionally deferred to later phases, once a minimal, high-impact variable set has been established.
+Variables must demonstrate:
+- Reduction in **P95 absolute error**
+- Stability across validation folds
+- Consistent behavior under conservative evaluation
 
 ---
 
-## Candidate Variables
+## 4. Methodological Decisions (What We Chose — and Why)
 
-Based on procces experience and metallurgical reasoning, the following candidates are evaluated:
+- **System:** AA3105-O
+- **Baseline features:** Mn, Mg
+- **Candidate process variables:**
+  - Final thickness
+  - Reduction percentage
+  - Coiling temperature  
+- **Target:** UTS (MPa)
+- **Validation:** Group-aware cross-validation by heat
+- **Model:** Ridge regression (fixed architecture)
 
-### Mechanical processing
-- Final thickness
-- Percentage reduction (engineered feature derived from thickness history)
+Alternative representations of deformation (final thickness vs. reduction %) are evaluated explicitly to isolate **feature representation effects**, not to maximize accuracy.
 
-These first two representations are treated as **alternative encodings of the same physical effect**, not as independent variables.
-
-### Thermal processing
-- Coiling temperature   
-Coiling temperature represents the exit terminal thermal condition of hot rolling and is evaluated both independently and in combination with deformation proxies.
-
-No assumption is made that all candidates will improve the model.
-
----
-
-## Method Overview
-
-### Baseline
-- Chemistry-only model, frozen from previous study cases
-- Identical validation strategy and data splits
-
-### Incremental screening
-Models are evaluated in a stepwise manner:
-
-1. Chemistry-only baseline  
-2. Chemistry + thickness  
-3. Chemistry + percentage reduction  
-4. Chemistry + coiling temperature  
-5. Chemistry + percentage reduction + coiling temperature  
-
-This design isolates **incremental gain** attributable to each variable or representation.
-
-### Validation
-- Group-aware cross-validation
-- Out-of-fold predictions only
-- Identical folds across all models to ensure comparability
-
-### Evaluation metrics
-- Mean Absolute Error (MAE)
-- Coefficient of determination (R²)
-- **P95 absolute error** (tail-risk indicator)
-
-The P95 metric is used to quantify **worst-case typical errors**, which are often more relevant for industrial risk assessment than average performance alone.
-
-### Incremental performance and tail-risk assessment
-
-To evaluate whether additional variables justify increased model complexity,
-each candidate is added incrementally to the frozen chemistry-only baseline.
-
-Performance is assessed using out-of-fold predictions under group-aware validation,
-with emphasis on **tail risk** rather than average accuracy.
-
-The figure below summarizes the incremental impact of each variable on
-model performance and robustness:
-
-![Incremental variable screening — MAE and P95 absolute error](assets/sc04_incremental_screening.png)
-
-**Interpretation:**
-- None of the evaluated variables delivers a consistent or material reduction in tail risk.
-- Small improvements in average error, where present, are stable across validation folds.
-- lternative encodings of deformation (final thickness vs percentage reduction) behave similarly, confirming that they capture the same underlying physical effect, with only minor differences in performance.
-- Combined models achieve slightly lower MAE than simpler representations, but without a corresponding reduction in tail risk.
-
-Under a conservative engineering lens, these results do not justify expanding the feature set beyond chemistry for this system.
+> Portfolio-wide assumptions and conventions are documented in  
+> → [`README_EXTENDED.md`](https://github.com/ivvza-io/analytics-engineering-portfolio/blob/main/docs/README_EXTENDED.md)
 
 ---
 
-## Expected Outputs
+## 5. Key Results and Evidence
 
-### Tables
-- Model performance comparison across incremental steps
-- Stability metrics across validation folds
-- Direct comparison of thickness vs percentage reduction representations
+The following results assess incremental modeling value, not process relevance.   
+Variables are evaluated solely on their ability to reduce uncertainty and tail risk relative to a frozen chemistry-only baseline.
 
-### Figures
-- Incremental performance waterfalls (MAE, R², P95 absolute error)
-- Error distribution comparisons highlighting tail behavior
-- Minimal residual diagnostics supporting interpretation
+### 5.1 Chemistry-Only Baseline Performance
 
-### Engineering insights
-- Identification of variables with potential predictive ROI
-- Quantification of whether added variables meaningfully reduce risk or provide only marginal gains
-- Clear justification for including or excluding candidate features
+**Table 1 — Frozen chemistry-only baseline**
+
+| MAE (MPa) | R²   | P95 absolute error (MPa) |
+|-----------|------|--------------------------|
+| 3.58      | 0.56 | 9.64 |
+
+This baseline defines the **reference error envelope** that all extended models are evaluated against.
 
 ---
 
-## Evaluation Criteria
+### 5.2 Incremental Performance Summary
 
-This study is considered successful if it:
+**Table 2 — Performance by feature set**
 
-- Quantifies the incremental impact of candidate variables under a conservative modeling lens
-- Determines whether added variables deliver robust improvements or marginal gains
-- Assesses whether any observed improvements are meaningful in terms of tail risk (P95 absolute error)
-- Supports an explicit decision on variable inclusion or exclusion for downstream modeling
+| Model   | Features | MAE   | R²    | P95 abs error |
+|---------|----------|-------|-------|---------------|
+| M0_chem | Mn, Mg   | 3.584 | 0.556 |  9.644        |
+| M1_thickness | + final thickness | 3.584 | 0.559 | 9.728 |
+| M1_reduction | + reduction % | 3.583 | 0.558 | 9.768 |
+| M2_coiling | + coiling temp | 3.581 | 0.559 | 9.748 |
+| M3_reduction_coiling | + reduction + coiling | 3.579 | 0.560 | 9.828 |
 
-A lack of clear or consistent improvement is itself considered a valid and informative outcome.
-
-
-### Not objectives of this study
-
-The following are explicitly **not objectives** of this study and are not used to judge its success:
-
-- Maximizing predictive accuracy
-- Expanding feature sets without clear justification
-- Chasing marginal metric improvements in isolation
-- Introducing additional complexity without clear evidence of risk reduction
-
-The goal is decision support, not metric optimization
+Observed improvements in average metrics are **small and inconsistent**.
 
 ---
 
-## Exit Condition
+### 5.3 Incremental Impact Relative to Baseline
 
-Study Case 4 is complete when:
+**Table 3 — Δ metrics relative to chemistry-only baseline**
 
-- The chemistry-only baseline has been extended incrementally and transparently
-- The incremental value of candidate variables has been quantified
-- Variables that do not justify additional complexity have been explicitly identified
-- Feature engineering choices are justified with evidence
-- The scope for a process-aware model is clearly defined, including justified exclusions
+| Model        | Δ MAE  | Δ R²   | Δ P95 abs error |
+|--------------|--------|--------|-----------------|
+| M1_thickness | 0.000  | +0.003 | +0.084 |
+| M1_reduction | −0.001 | +0.002 | +0.124 |
+| M2_coiling   | −0.003 | +0.003 | +0.104 |
+| M3_reduction_coiling  | −0.005 | +0.004 | +0.184 |
 
+Reductions in average error are **not accompanied by reductions in tail risk**.
 
 ---
 
-## Relationship to Next Study Case
+### 5.4 Fold-Level Stability
 
-Study Case 4 defines **what is worth modeling**.
+**Table 4 — Fold-level stability metrics**
 
-By identifying a minimal and defensible set of non-chemical variables that deliver robust, incremental value under conservative evaluation, it establishes the foundation for **Study Case 5**, where these variables are integrated into design-oriented tools (e.g., chemistry–process heatmaps) to support robust engineering decision-making.
+| Model        | MAE mean | MAE std | P95 mean | P95 std |
+|--------------|----------|---------|----------|---------|
+| M0_chem      | 3.584    | 0.087   |  9.648   | 0.456 |
+| M1_thickness | 3.584    | 0.091   |  9.663   | 0.398 |
+| M1_reduction | 3.583    | 0.090   |  9.638   | 0.353 |
+| M2_coiling   | 3.581    | 0.090   |  9.699   | 0.515 |
+| M3_reduction_coiling    | 3.579  |  0.093   | 9.660 | 0.527 |
 
-Study Case 5 does not expand the feature space further; instead, it focuses on translating validated variables into actionable design representations.
+No configuration demonstrates both:
+- Lower tail error **and**
+- Improved stability relative to the chemistry-only baseline.
 
+**Interpretation Note**
+> These results, as presented in this study case, do not imply that the variables lack utility under alternative modeling paradigms or analytical approaches.
+
+---
+
+### 5.5 Visual Evidence
+
+**Figure 1 — Incremental impact on Δ P95 and Δ MAE**
+
+![Incremental impact on Δ P95 and Δ MAE](assets/sc04_incremental_screening.png)
+
+> *Variables that marginally improve average error fail to reduce worst-case risk.*
+
+**Figure 2 — Error distribution: baseline vs extended model**
+
+![Error distribution: baseline vs extended model](assets/sc04_error_distribution_histogram_comparison.png)
+
+> *Error distributions largely overlap, confirming the absence of meaningful incremental predictive signal.*
+
+---
+
+## 6. Engineering Interpretation
+
+For AA3105-O:
+- Chemistry captures the **dominant predictive signal** for UTS
+- Evaluated process variables do **not** provide robust incremental information
+- Slight MAE improvements are unstable and not reflected in tail behavior
+
+Alternative deformation encodings:
+- Represent similar underlying information
+- Do not justify additional complexity in the model
+
+Thermal variables:
+- May influence behavior in specific regimes
+- Do not consistently improve predictive robustness under conservative evaluation
+
+---
+
+## 7. Modeling Decision Summary
+
+**Table 5 — Incremental value assessment for modeled variables**
+
+| Variable | Incremental predictive value | Modeling decision |
+|--------|-----------------------------|-------------------|
+| Chemistry | High | Retain as baseline |
+| Final thickness | Low | Exclude from model |
+| Reduction % | Low | Exclude from model |
+| Coiling temperature | Low | Exclude from model |
+| Reduction + coiling | Low | Exclude from model |
+
+These decisions apply **only to this modeling objective** and do not imply irrelevance of the variables at the process level.
+
+---
+
+## 8. What This Study Case Is — and Is Not
+
+### This Study *Is*:
+- A disciplined evaluation of **incremental predictive signal**
+- A guardrail against unnecessary model complexity
+- A demonstration of modeling restraint in an industrial context
+
+### This Study *Is Not*:
+- A judgment on which variables should be measured in production
+- A rejection of metallurgically relevant process variables
+- A search for maximum possible accuracy
+
+Importantly, a variable can be:
+- **critical for process control**,
+- **required for operational stability**, and
+- **still provide no incremental value for a specific predictive modeling task.**
+
+---
+
+## 9. Why This Study Case Matters in the Portfolio
+
+This study case demonstrates:
+1. The ability to **separate process importance from modeling utility**
+2. That adding variables does not automatically improve predictive models
+3. How to evaluate incremental value under a conservative, risk-aware lens
+
+It provides the analytical discipline required before moving to:
+- **SC05**, where uncertainty-aware tools are introduced deliberately
+
+---
+
+## 10. Next Steps
+
+- Reformulate the objective from point prediction to **risk-aware design-space exploration** (→ SC05)
+- Introduce uncertainty explicitly rather than additional raw variables
+- Preserve interpretability while enabling conservative decision support
+
+---
+
+## References and Related Work
+
+- Portfolio assumptions and conventions:  
+  → [`README_EXTENDED.md`](https://github.com/ivvza-io/analytics-engineering-portfolio/blob/main/docs/README_EXTENDED.md)
+- Chemistry-only UTS modeling:  
+  → [`SC02 — Chemistry-Only Modeling of UTS`](https://github.com/ivvza-io/sc02-chemistry-only-mechanical-properties)
+- Chemistry generalization across systems:  
+  → [`SC03 — Chemistry Generalization Across Systems`](https://github.com/ivvza-io/sc03-chemistry-generalization-across-systems)
+- Uncertainty-aware design maps:  
+  → [`SC05 — Uncertainty-Aware Design Maps`](https://github.com/ivvza-io/sc05-uncertainty-aware-design-maps)
+
+---
+
+### Takeaway
+
+This study shows that **measuring a variable and modeling it are different decisions**.  
+In this context, chemistry alone captures the dominant signal; adding process variables increases complexity without delivering robust predictive benefit.
+
+> These results, as presented in this study case, do not imply that the variables lack utility under alternative modeling paradigms or analytical approaches.
