@@ -102,6 +102,7 @@ Alternative representations of deformation (final thickness vs. reduction %) are
 
 > Portfolio-wide assumptions and conventions are documented in  
 > → [`README_EXTENDED.md`](https://github.com/ivvza-io/analytics-engineering-portfolio/blob/main/docs/README_EXTENDED.md)
+> Design rationale, methodological decisions, and implementation-level technical documentation are maintained in  
 > → [`docs/technical-notes`](https://github.com/ivvza-io/sc04-variable-influence-screening/tree/main/docs/technical_notes.md)
 
 ---
