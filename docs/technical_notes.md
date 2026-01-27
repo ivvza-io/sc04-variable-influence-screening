@@ -204,9 +204,10 @@ Key non-obvious decisions recorded for traceability:
 
 ## 11. Traceability
 
-- **Notebook:** `sc04_variable_influence_screening.ipynb`
+- **Notebook:** `sc02_chemistry_only_uts_model.ipynb`
 - **Data semantics:** SQL semantic layer defined in SC01
-- **Commit:** `<pendiente >`
+- **Toolkit version:** v1.0.0 (pinned in requirements.txt)
+- **Dataset:** `data/public/sc04/v_models_analysis_o.csv`
 
 ---
 
