@@ -101,9 +101,12 @@ Variables must demonstrate:
 Alternative representations of deformation (final thickness vs. reduction %) are evaluated explicitly to isolate **feature representation effects**, not to maximize accuracy.
 
 > Portfolio-wide assumptions and conventions are documented in  
-> → [`README_EXTENDED.md`](https://github.com/ivvza-io/analytics-engineering-portfolio/blob/main/docs/README_EXTENDED.md)   
-> Design rationale, methodological decisions, and implementation-level technical documentation are maintained in  
-> → [`docs/technical-notes`](https://github.com/ivvza-io/sc04-variable-influence-screening/tree/main/docs/technical_notes.md)
+> → [`README_EXTENDED.md`](https://github.com/ivvza-io/analytics-engineering-portfolio/blob/main/docs/README_EXTENDED.md)  
+> Design rationale and technical details: [`docs/technical_notes.md`](docs/technical_notes.md)  
+>  
+> This study case uses the [`portfolio-analytics-toolkit`](https://github.com/ivvza-io/portfolio-analytics-toolkit) for reusable CV, metrics, and plotting utilities.  
+>  
+> Reproducibility instructions: [`HOW_TO_RUN.md`](HOW_TO_RUN.md)
 
 ---
 
@@ -283,3 +286,9 @@ This study shows that **measuring a variable and modeling it are different decis
 In this context, chemistry alone captures the dominant signal; adding process variables increases complexity without delivering robust predictive benefit.
 
 > These results, as presented in this study case, do not imply that the variables lack utility under alternative modeling paradigms or analytical approaches.
+
+---
+
+### How to Run This Study Case
+Reproducibility instructions are provided in:   
+→ [`HOW_TO_RUN.md`](HOW_TO_RUN.md)
